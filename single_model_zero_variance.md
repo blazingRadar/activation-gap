@@ -66,7 +66,11 @@ Step by step.
 
 ---
 
-## Step 1 — Split the Thinking
+## Step 1: Themed Analytical Decomposition
+
+I call this **Themed Analytical Decomposition**.
+
+In practice, that means splitting the thinking.
 
 Instead of:
 > "find all bugs"
@@ -140,7 +144,9 @@ Same model.
 
 Every run.
 
-Zero variance.
+Zero recall variance.
+
+"Zero variance" here refers to recall stability: the same 6 bugs surfaced on every run. Individual finding wording and non-bug commentary may still vary between runs; the bug set does not.
 
 No hallucinations.
 
@@ -249,12 +255,61 @@ They're activation failures.
 
 ---
 
+## Ground Truth
+
+A note on how the 6-bug ground truth was established.
+
+The target codebase was a single, bounded code artifact chosen for the
+experiment. The 6-bug set was established by the author through prior
+inspection and direct testing — this is single-author labeling, not
+an external benchmark or peer-reviewed bug set.
+
+Known limitations of the ground truth:
+
+- Single labeler (author). No inter-rater reliability measurement.
+- Single codebase. Generalization to other codebases is not established
+  by this experiment.
+- "Bug" is defined by the author as a defect the model was expected
+  to surface. Definitional drift is possible.
+- The 6-bug set was known to the author before the runs. The runs were
+  not blind evaluations — the author knew which bugs the model should
+  find and observed whether it did.
+
+These limitations do not invalidate the finding — the reproducibility of
+6/6 recall across 18 runs is observed regardless of how the ground truth
+was established — but they bound the claim. "The themed-decomposition
+approach surfaces the specified bug set reproducibly under these
+conditions" is the accurate reading; "the themed-decomposition approach
+finds all bugs in any codebase" is not.
+
+## Known Limitations
+
+- **Sample size.** 18 runs on one codebase. Statistical claims beyond
+  "recall was stable in this sample" are not supported.
+- **Single-author labeling.** See Ground Truth section above.
+- **Temperature-0 variance not characterized.** "Zero variance" here means
+  zero recall variance across 18 runs. Provider-side non-determinism at
+  temperature 0 is a known phenomenon (batch routing, token tiebreaks)
+  that may produce measurable variance on other metrics (finding wording,
+  latency, token counts). That variance was not measured in this
+  experiment.
+- **Cross-model generalization.** The paper references "works across
+  multiple models" but does not document specific model IDs, provider
+  versions, or the number of runs per model. Treat cross-model claims
+  as preliminary.
+- **Codebase generalization.** One codebase. No claim about other
+  codebases of different size, language, or structure.
+- **Raw artifacts.** Referenced as "github.com/blazingRadar/sib29" but
+  not included directly in this repository. Reproducibility requires
+  access to those raw artifacts.
+
+---
+
 ## Where It Stands
 
 - 6/6 bugs
 - 18 runs
-- Zero variance
-- Works across multiple models
+- Zero recall variance
 - ~80% coverage with current categories
 
 And I only built 5 out of 14 categories.

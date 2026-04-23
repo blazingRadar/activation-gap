@@ -1,13 +1,39 @@
-# activation-gap
+# Single Model, Zero Variance: The Activation Gap
 
-Frontier LLMs miss bugs not because they lack the knowledge but because standard prompts fail to activate it.
+**Zero recall variance: the same 6 bugs surfaced on every one of 18 independent runs. (This is a recall-stability claim, not a claim that all model outputs are deterministic.)**
 
-This repository documents five steps that dissolved each capability ceiling — from 3/6 bugs with random variance to 6/6 bugs with zero variance across 18 independent runs — using a single model and no fine-tuning.
+---
 
-Read the paper: [single_model_zero_variance.md](single_model_zero_variance.md)
+## Abstract
 
-- **Mechanism:** Themed Analytical Decomposition, Adversarial Mode Selection, Cognitive Mode Mapping, Set-Theory Defense Verification, and Model-Guided Prompt Generation.
-- **Results:** 100% recall on primary benchmark, validated across 12 real-world CVEs in 7 languages.
-- **Data:** [github.com/blazingRadar/sib29-gate](https://github.com/blazingRadar/sib29-gate)
-- **Full pipeline:** [github.com/blazingRadar/sib29](https://github.com/blazingRadar/sib29) (private, under active development)
-- **Contact:** [nickcunningham.io](https://nickcunningham.io)
+This repository documents the discovery of the **Activation Gap** — the measurable divergence in model performance when asked to solve complex, multi-variable problems (like full-codebase auditing) in a single pass.
+
+The core findings show that **single-model recursion produces massive variance**, but **themed cognitive splitting** can eliminate it entirely. By splitting a single audit into independent, themed observation paths, we can achieve **zero recall variance** — the same 6 bugs found on every one of 18 independent runs for the same codebase.
+
+---
+
+## Experimental Results
+
+- **18 Runs, 36 Bugs**: In standard single-prompt runs, the same model found different bugs each time (High Variance).
+- **Themed Solution**: By decomposing the audit into distinct cognitive paths (e.g., Dataflow, Security, Symmetry), we achieved 6/6 recall on every run — 100% recall consistency.
+- **The "0.9 Accuracy" Barrier**: Proves that aggregate model confidence is a constant, regardless of whether the model is in a high-variance or low-variance state.
+
+---
+
+## Related Research
+
+| Research | Link |
+|---|---|
+| **BUS (Hallucination Detection)** | [github.com/blazingRadar/sib29-gate](https://github.com/blazingRadar/sib29-gate) |
+| **Cognitive Modes** | [github.com/blazingRadar/cognitive-modes](https://github.com/blazingRadar/cognitive-modes) |
+| **Keeping Agents Honest** | [github.com/blazingRadar/keeping-agents-honest](https://github.com/blazingRadar/keeping-agents-honest) |
+
+---
+
+## Professional Implementation
+
+These findings inform ongoing governance-pipeline research — a bounded, audit-discipline-driven system for LLM-orchestrated code review under measured scope constraints. For ongoing work, visit [nickcunningham.io](https://nickcunningham.io).
+
+---
+
+*Nick Cunningham — April 2026 — nickcunningham.io*
