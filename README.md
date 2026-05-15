@@ -1,39 +1,61 @@
-# Single Model, Zero Variance: The Activation Gap
+# Activation Gap
 
-**Zero recall variance: the same 6 bugs surfaced on every one of 18 independent runs. (This is a recall-stability claim, not a claim that all model outputs are deterministic.)**
+Preliminary notes on reducing recall variance in an LLM code-audit task with themed prompt decomposition.
 
----
+## Current Claim
 
-## Abstract
+In one single-codebase, single-author-labeled experiment, themed analytical decomposition surfaced the same specified six-bug set across 18 reported runs. In this repository, "zero variance" means zero observed recall variance for that specified bug set in that sample. It does not mean all model outputs were deterministic, and it does not establish generalization to other models, codebases, or tasks.
 
-This repository documents the discovery of the **Activation Gap** — the measurable divergence in model performance when asked to solve complex, multi-variable problems (like full-codebase auditing) in a single pass.
+## Repository Scope
 
-The core findings show that **single-model recursion produces massive variance**, but **themed cognitive splitting** can eliminate it entirely. By splitting a single audit into independent, themed observation paths, we can achieve **zero recall variance** — the same 6 bugs found on every one of 18 independent runs for the same codebase.
+This is a public writeup and self-consistency artifact. It is not a reproducible benchmark package.
 
----
+Included:
 
-## Experimental Results
+- `single_model_zero_variance.md`: the bounded writeup.
+- `verify_claims.py`: a self-consistency check that compares README and paper claims.
+- `PUBLICATION_MANIFEST.md`: claim boundary and repository contract.
+- `LICENSE`: MIT license.
 
-- **18 Runs, 36 Bugs**: In standard single-prompt runs, the same model found different bugs each time (High Variance).
-- **Themed Solution**: By decomposing the audit into distinct cognitive paths (e.g., Dataflow, Security, Symmetry), we achieved 6/6 recall on every run — 100% recall consistency.
-- **The "0.9 Accuracy" Barrier**: Proves that aggregate model confidence is a constant, regardless of whether the model is in a high-variance or low-variance state.
+Not included:
 
----
+- raw model outputs
+- target code artifact
+- prompt files
+- scoring tables
+- external-labeler review
+- rerun harness
 
-## Related Research
+## What This Shows
+
+- The reported experiment used a specified six-bug target set on one codebase.
+- The themed-decomposition approach reportedly surfaced that six-bug set on all 18 runs.
+- The strongest public claim is recall stability under the reported conditions, not broad capability improvement.
+
+## What This Does Not Show
+
+- It does not prove that themed decomposition finds all bugs.
+- It does not prove cross-model or cross-codebase generalization.
+- It does not characterize false positives from the public artifacts.
+- It does not prove that confidence values are constant or model-independent.
+- It does not provide raw artifacts needed for independent reproduction.
+
+## Verification
+
+```shell
+python3 verify_claims.py
+```
+
+The script checks that the README and paper make aligned bounded claims. It does not verify empirical reproduction, that the six bugs exist, or that the 18 runs happened as described.
+
+## Related Repositories
 
 | Research | Link |
 |---|---|
-| **BUS (Hallucination Detection)** | [github.com/blazingRadar/sib29-gate](https://github.com/blazingRadar/sib29-gate) |
-| **Cognitive Modes** | [github.com/blazingRadar/cognitive-modes](https://github.com/blazingRadar/cognitive-modes) |
-| **Keeping Agents Honest** | [github.com/blazingRadar/keeping-agents-honest](https://github.com/blazingRadar/keeping-agents-honest) |
+| BUS (Hallucination Detection) | [github.com/blazingRadar/sib29-gate](https://github.com/blazingRadar/sib29-gate) |
+| Cognitive Modes | [github.com/blazingRadar/cognitive-modes](https://github.com/blazingRadar/cognitive-modes) |
+| Keeping Agents Honest | [github.com/blazingRadar/keeping-agents-honest](https://github.com/blazingRadar/keeping-agents-honest) |
 
----
+## Status
 
-## Professional Implementation
-
-These findings inform ongoing governance-pipeline research — a bounded, audit-discipline-driven system for LLM-orchestrated code review under measured scope constraints. For ongoing work, visit [nickcunningham.io](https://nickcunningham.io).
-
----
-
-*Nick Cunningham — April 2026 — nickcunningham.io*
+Archived preliminary research note. The public artifact is useful as a claim-boundary and methodology note, not as a standalone reproducibility package.

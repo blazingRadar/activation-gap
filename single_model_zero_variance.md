@@ -1,349 +1,115 @@
-# Single Model, Zero Variance
+# Single Model, Zero Recall Variance
 
-**Nick Cunningham**
-*Independent Research — April 2026*
-*nickcunningham.io | github.com/blazingRadar/sib29*
+Author: Nick Cunningham
+Date: April 2026
+Status: preliminary single-codebase research note
 
----
+## Summary
 
-Everyone builds AI code review the same way.
+This note reports a narrow observation from an LLM code-audit experiment. In one single-codebase, single-author-labeled setup, a themed prompt-decomposition workflow surfaced the same specified six-bug set across 18 reported runs.
 
-One model. One prompt. One pass.
+The phrase "zero variance" in this repository means zero observed recall variance for that specified bug set in that sample. It does not mean that all model output was deterministic. It does not establish that the method generalizes to other codebases, models, providers, or audit tasks.
 
-It misses bugs → add another model.
+The public repository contains the writeup and a self-consistency script. It does not include raw model outputs, prompts, target code, or scoring tables, so the empirical result is not independently reproducible from this repository alone.
 
-That's the default thinking.
+## Problem
 
-I didn't buy it.
+A single broad prompt such as "find all bugs" can produce unstable recall in code-audit tasks. The model may identify some defects in one run and different defects in another run. This note explores one decomposition strategy for reducing that recall instability.
 
----
+The working hypothesis was that some misses are activation failures rather than knowledge failures. In this framing, the model may be capable of explaining a defect when asked directly, but may fail to surface that defect during a broad audit pass.
 
-## The Starting Point
+## Method
 
-I gave a frontier model a simple task:
+The workflow split the audit into themed analytical passes instead of asking one broad question. Each pass focused on a narrower lens, such as dataflow, security, or symmetry. The goal was to reduce competition between candidate findings and make subtle defects easier to surface.
 
-Find all the bugs.
-
-It found about half.
-
-And worse — it wasn't consistent.
-
-Same model. Same code. Same prompt.
-
-Different bugs every time.
-
-That's what people accept as the ceiling.
-
-I didn't think it was a capability problem.
-
-I thought it was an activation problem.
-
----
-
-## The Key Realization
-
-The model knew every bug it missed.
-
-If I asked about the bug directly, it explained it perfectly.
-
-So the issue wasn't intelligence.
-
-It was access.
-
-The model had the knowledge.
-
-It just wasn't using it during the audit.
-
----
-
-## What I Did
-
-I stopped asking one big question.
-
-I broke the problem apart.
-
-Step by step.
-
----
-
-## Step 1: Themed Analytical Decomposition
-
-I call this **Themed Analytical Decomposition**.
-
-In practice, that means splitting the thinking.
-
-Instead of:
-> "find all bugs"
-
-I ran multiple focused passes.
-
-Each one looked at the code through a different lens.
-
-No overlap. No competition.
-
-**Result:**
-
-- More bugs found
-- Same bugs every time
-
-Variance dropped immediately.
-
-### Why That Works
-
-In a normal prompt, findings compete.
-
-Big obvious bugs crowd out subtle ones.
-
-There's only so much output space.
-
-I call this **attention slot competition.**
-
-When you remove the competition:
-Subtle bugs finally show up.
-
----
-
-## Step 2 — Force Proof
-
-The model was close on the remaining bugs.
-
-It saw the area, but got the diagnosis wrong.
-
-So I forced it to prove its claims.
-
-Not *"is this a bug?"*
-
-But:
+The workflow also used proof-oriented follow-up prompts for candidate findings:
 
 - What exact input breaks this?
 - What exact type causes failure?
 - What exactly crashes?
+- What assumption made the previous pass miss this?
 
-And this is where it got interesting.
+Misses were treated as diagnostic events. When the model missed a known target defect, the next prompt asked why the miss happened, extracted a rule from that explanation, and fed the rule back into the next run.
 
-**The mode mattered.**
+## Reported Result
 
-| Mode | Result |
-|---|---|
-| Agreeable | Misses bugs |
-| Skeptical | Finds them |
+The reported target set contained six author-labeled bugs in one bounded code artifact. Under the themed-decomposition workflow, the same six-bug set surfaced on every one of 18 reported runs.
 
-So:
-- Discovery → no role
-- Verification → skeptical only
+The bounded claim is:
 
-That combination unlocked everything.
+> The themed-decomposition workflow produced stable recall of the specified six-bug set across 18 reported runs in this single-codebase setup.
 
----
+The stronger claims are not established here:
 
-## Result
-
-Same model.
-
-**6 out of 6 bugs.**
-
-Every run.
-
-Zero recall variance.
-
-"Zero variance" here refers to recall stability: the same 6 bugs surfaced on every run. Individual finding wording and non-bug commentary may still vary between runs; the bug set does not.
-
-No hallucinations.
-
----
-
-## Step 3 — Activation vs Knowledge
-
-This was a big one.
-
-Not all misses are the same.
-
-Two types:
-
-- **Activation gap** → model knows, but didn't use it
-- **Knowledge gap** → model genuinely doesn't know
-
-Most of what looked like "limits" were activation gaps.
-
-The model knew.
-
-It just needed the right question.
-
----
-
-## Step 4 — Break Defense Trust
-
-Models trust code too much.
-
-They see validation and assume it works.
-
-That's a huge blind spot.
-
-So I forced them to compute instead of judge.
-
-Not:
-> "is this safe?"
-
-But:
-> What should this handle?
-> What does it actually handle?
-> What's missing?
-
-That delta is the bug.
-
-That change alone unlocked an entire class of misses.
-
----
-
-## Step 5 — Let the Model Fix Itself
-
-This was the unlock.
-
-I asked the model:
-
-> Why did you miss this?
-
-And it answered. Clearly.
-
-It told me:
-
-- what assumption it made
-- why it trusted something it shouldn't
-- what it failed to check
-
-I took that, turned it into a rule, fed it back in.
-
-Next run: bug found.
-
-Same model. No retraining.
-
-### The Pattern
-
-```
-Miss → ask why → extract principle → fix prompt
-```
-
-The model told me how to use it.
-
----
-
-## The Architecture
-
-You don't need more models.
-
-You need better structure.
-
-1. Split the thinking
-2. Remove competition
-3. Force proof
-4. Break assumptions
-5. Learn from failures
-
-That's it.
-
----
-
-## What This Proves
-
-The ceiling isn't the model.
-
-It's how you ask.
-
-Most "limits" aren't real.
-
-They're activation failures.
-
----
+- The method finds all bugs in a codebase.
+- The method generalizes across codebases.
+- The method generalizes across model families or provider versions.
+- The method eliminates all model-output variance.
+- The method controls false positives.
 
 ## Ground Truth
 
-A note on how the 6-bug ground truth was established.
-
-The target codebase was a single, bounded code artifact chosen for the
-experiment. The 6-bug set was established by the author through prior
-inspection and direct testing — this is single-author labeling, not
-an external benchmark or peer-reviewed bug set.
+The six-bug ground truth was established by the author through prior inspection and direct testing of the target artifact. This is single-author labeling, not an external benchmark or peer-reviewed bug set.
 
 Known limitations of the ground truth:
 
-- Single labeler (author). No inter-rater reliability measurement.
-- Single codebase. Generalization to other codebases is not established
-  by this experiment.
-- "Bug" is defined by the author as a defect the model was expected
-  to surface. Definitional drift is possible.
-- The 6-bug set was known to the author before the runs. The runs were
-  not blind evaluations — the author knew which bugs the model should
-  find and observed whether it did.
+- Single labeler. No inter-rater reliability measurement.
+- Single codebase. Generalization to other codebases is not established.
+- The author knew the six-bug set before the runs. The runs were not blind evaluations.
+- The public repository does not include the target artifact or raw model outputs.
+- False-positive accounting is not documented in this repository.
 
-These limitations do not invalidate the finding — the reproducibility of
-6/6 recall across 18 runs is observed regardless of how the ground truth
-was established — but they bound the claim. "The themed-decomposition
-approach surfaces the specified bug set reproducibly under these
-conditions" is the accurate reading; "the themed-decomposition approach
-finds all bugs in any codebase" is not.
+These limitations bound the result. They do not erase the reported recall-stability observation, but they prevent broader claims.
 
-## Known Limitations
+## Confidence Values
 
-- **Sample size.** 18 runs on one codebase. Statistical claims beyond
-  "recall was stable in this sample" are not supported.
-- **Single-author labeling.** See Ground Truth section above.
-- **Temperature-0 variance not characterized.** "Zero variance" here means
-  zero recall variance across 18 runs. Provider-side non-determinism at
-  temperature 0 is a known phenomenon (batch routing, token tiebreaks)
-  that may produce measurable variance on other metrics (finding wording,
-  latency, token counts). That variance was not measured in this
-  experiment.
-- **Cross-model generalization.** The paper references "works across
-  multiple models" but does not document specific model IDs, provider
-  versions, or the number of runs per model. Treat cross-model claims
-  as preliminary.
-- **Codebase generalization.** One codebase. No claim about other
-  codebases of different size, language, or structure.
-- **Raw artifacts.** Referenced as "github.com/blazingRadar/sib29" but
-  not included directly in this repository. Reproducibility requires
-  access to those raw artifacts.
+Earlier framing described a "0.9 accuracy" barrier. This repository does not include raw confidence traces or a statistical analysis sufficient to support a proof-level claim about aggregate model confidence.
 
----
+The bounded observation is simpler: confidence-style summaries, when present in the author's recorded runs, were not sufficient by themselves to distinguish unstable recall from stable recall. The public artifact does not support a broader claim that confidence is constant across models or tasks.
 
-## Where It Stands
+## Reproducibility Status
 
-- 6/6 bugs
-- 18 runs
-- Zero recall variance
-- ~80% coverage with current categories
+This repository is not a standalone reproducibility package. The raw run artifacts are not public here. The previous raw-data reference pointed at a repository path that is not publicly reachable, so it has been removed rather than left as a broken reproducibility claim.
 
-And I only built 5 out of 14 categories.
+To make the result independently reproducible, a future package would need at least:
 
----
+- the target code artifact
+- the six-bug expected set
+- prompt files
+- model and provider metadata
+- raw model outputs for all runs
+- scoring criteria
+- false-positive accounting
+- rerun instructions
 
-## What's Next
+## Verification Script
 
-The same loop that finds missed bugs should be able to remove false positives.
+`verify_claims.py` checks repository self-consistency only. It verifies that the README and paper contain aligned bounded claims. It does not verify empirical reproduction, model behavior, raw outputs, or the existence of the six target bugs.
 
-Same idea. Opposite direction.
+Run:
 
-If that works:
+```shell
+python3 verify_claims.py
+```
 
-You get a system that improves itself without retraining.
+## Interpretation
 
----
+The useful design idea is themed decomposition: instead of asking one model to perform a broad audit in one pass, divide the review into narrower analytical lenses and use proof-oriented follow-up prompts on candidate findings and misses.
 
-## My Take
+In this single reported setup, that structure coincided with stable recall of the specified bug set. Treat it as a hypothesis and method note, not as a general benchmark result.
 
-The capability is already there.
+## Future Work
 
-We've been asking the wrong way.
+A stronger public study would add:
 
-Every time I thought I hit a wall…
+- multiple target codebases
+- blinded ground-truth labels
+- external reviewers
+- raw run artifacts
+- false-positive measurement
+- cross-model reruns with exact model identifiers
+- a scoring harness that can be rerun by others
 
-It wasn't a wall.
+## Status
 
-It was a bad question.
-
-So far, that's held every time.
-
----
-
-*Raw data: github.com/blazingRadar/sib29*
-*Contact: nickcunningham.io*
-*Preliminary research. April 2026.*
+Preliminary research note. April 2026.
